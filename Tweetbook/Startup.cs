@@ -32,7 +32,7 @@ namespace Tweetbook
                     Configuration.GetConnectionString("DefaultConnection")));
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<DataContext>();
-            services.AddMvc().SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Latest);
+            services.AddMvc(option => option.EnableEndpointRouting = false);
             services.AddSwaggerGen(x =>
             {
                 x.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Tweetbook API", Version = "v1"});
@@ -50,6 +50,10 @@ namespace Tweetbook
                 app.UseHsts();
             }
 
+            
+            app.UseHttpsRedirection();
+            app.UseStaticFiles();
+
             var swaggerOptions = new Options.SwaggerOptions();
             Configuration.GetSection(nameof(SwaggerOptions)).Bind(swaggerOptions);
 
@@ -62,17 +66,8 @@ namespace Tweetbook
             {
                 option.SwaggerEndpoint(swaggerOptions.UiEndpoint, swaggerOptions.Description);
             });
-            app.UseHttpsRedirection();
-            app.UseStaticFiles();
 
-            app.UseRouting();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
-            });
+            app.UseMvc();
         }
     }
 }
